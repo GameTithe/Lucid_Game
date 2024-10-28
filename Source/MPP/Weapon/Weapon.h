@@ -70,6 +70,11 @@ protected:
 		int32 OtherBodyIndex
 	);
 	 
+	/*
+	custom depth
+	*/
+	void EnableCustomDepth(bool bEnable);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
@@ -129,6 +134,8 @@ public:
 	FORCEINLINE int32 GetMagCapacity() { return MagCapacity; }
 
 	bool IsEmpty();
+	bool IsFull();
+
 	void Dropped();
 	void AmmoToAdd(int32 AmmoToAdd);
 

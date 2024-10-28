@@ -14,6 +14,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
+#include "MPP/Character/SAnimInstance.h"
 
 //#include "MPP/Interface/CrosshairInterface.h"
 
@@ -206,17 +207,23 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	}
 }
 
+void UCombatComponent::ShotgunShellReload()
+{
+	if (Character && Character->HasAuthority() && CarriedAmmo != 0)
+	{
+		UpdateShotgunAmmoValue();
+	}
+}
+
 void UCombatComponent::Fire()
 {  
 	//clinet에 equippedWeapon이 안된다.
 	//if (EquippedWeapon == nullptr) { 
 	//	return;
 	//} 
-
-	UE_LOG(LogTemp, Warning, TEXT("Cant Fire"));
+	 
 	if (CanFire())
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Can Fire"));
+	{ 
 		bCanFire = false;
 
 		ServerFire(HitTarget);
@@ -295,15 +302,7 @@ void UCombatComponent::EmptyGunSound()
 
 bool UCombatComponent::CanFire()
 {
-	if (EquippedWeapon == nullptr)  return false;
-	UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon"));
-	if(!EquippedWeapon->IsEmpty() )
-		UE_LOG(LogTemp, Warning, TEXT("Not empty"));
-	if(bCanFire)
-		UE_LOG(LogTemp, Warning, TEXT("bCanFire"));
-	if(CombatState == ECombatState::ECS_Unoccupied)
-		UE_LOG(LogTemp, Warning, TEXT("unoccupoed"));
-
+	if (EquippedWeapon == nullptr)  return false;  
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 //Server
@@ -396,6 +395,17 @@ void UCombatComponent::OnRep_CarriedAmmo()
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
+
+	bool bJumpToShotgunEnd =
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon != nullptr&&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_ShotGun &&
+		CarriedAmmo == 0; 
+
+	if (bJumpToShotgunEnd)
+	{
+		JumpToShotgunEnd();
+	}
 }
 
 // Server & clinent
@@ -426,11 +436,9 @@ int32 UCombatComponent::AmountToReload()
 void UCombatComponent::FinishedReload()
 {
 	if (Character == nullptr) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("FinishedReload"));
+	 
 	if (Character->HasAuthority())
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Change State"));
+	{ 
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValue();
 	}
@@ -453,6 +461,7 @@ void UCombatComponent::ServerReload_Implementation()
 void UCombatComponent::UpdateAmmoValue()
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
+	if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_ShotGun) return;
 
 	int32 ReloadAmount = AmountToReload(); 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
@@ -471,6 +480,40 @@ void UCombatComponent::UpdateAmmoValue()
 
 	EquippedWeapon->AmmoToAdd(ReloadAmount);
 }
+
+void UCombatComponent::UpdateShotgunAmmoValue()
+{ 
+	if (Character == nullptr || EquippedWeapon == nullptr) return;
+
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= 1;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; 
+	}
+	Controller = Controller == nullptr ? Cast<ASPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+
+	EquippedWeapon->AmmoToAdd(1);
+
+	if (EquippedWeapon->IsFull() || CarriedAmmo == 0 )
+	{
+		JumpToShotgunEnd();
+	}
+
+}
+void UCombatComponent::JumpToShotgunEnd()
+{
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	if (AnimInstance && Character->GetReloadMontage())
+	{
+		//AnimInstance->Montage_Play(Character->GetReloadMontage());
+		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
+	}
+}
+
 
 //client
 void UCombatComponent::OnRep_CombatState()

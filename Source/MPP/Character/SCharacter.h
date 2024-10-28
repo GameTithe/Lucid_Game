@@ -177,6 +177,7 @@ public:
 	FORCEINLINE	bool IsElimmed() const { return bElimmed;  }
 	FORCEINLINE UCombatComponent* GetCombat() { return Combat; }
 	FORCEINLINE bool GetDisableGamePlay() { return bDisableGameplay; }
+	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 	
 	ECombatState GetCombatState() const;
 	
