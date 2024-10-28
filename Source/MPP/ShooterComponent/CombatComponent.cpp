@@ -213,8 +213,10 @@ void UCombatComponent::Fire()
 	//	return;
 	//} 
 
+	UE_LOG(LogTemp, Warning, TEXT("Cant Fire"));
 	if (CanFire())
 	{
+	UE_LOG(LogTemp, Warning, TEXT("Can Fire"));
 		bCanFire = false;
 
 		ServerFire(HitTarget);
@@ -224,6 +226,7 @@ void UCombatComponent::Fire()
 
 		StartFireTimer();
 	}
+
 	if (EquippedWeapon)
 	{ 
 		if(EquippedWeapon && EquippedWeapon->IsEmpty())
@@ -293,6 +296,13 @@ void UCombatComponent::EmptyGunSound()
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr)  return false;
+	UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon"));
+	if(!EquippedWeapon->IsEmpty() )
+		UE_LOG(LogTemp, Warning, TEXT("Not empty"));
+	if(bCanFire)
+		UE_LOG(LogTemp, Warning, TEXT("bCanFire"));
+	if(CombatState == ECombatState::ECS_Unoccupied)
+		UE_LOG(LogTemp, Warning, TEXT("unoccupoed"));
 
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
@@ -375,7 +385,7 @@ void UCombatComponent::InitializedCarriedAmmo()
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_RocketLancher, StartingRocketAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_Pistol, StartingPistolAmmo);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SubmachineGun, StartingSubmachineGun);
-	CarriedAmmoMap.Emplace(EWeaponType::EWT_SubmachineGun, StartingShotGun);
+	CarriedAmmoMap.Emplace(EWeaponType::EWT_ShotGun, StartingShotGun);
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_SniperRifle, StartingSniperfile);
 }
 
@@ -403,7 +413,8 @@ int32 UCombatComponent::AmountToReload()
 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
-		int32 AmountCarriedAmmo = CarriedAmmo; // CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		//int32 AmountCarriedAmmo = CarriedAmmo;
+		int32 AmountCarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 		int32 ReloadAmmo = FMath::Min(RoomInMag, AmountCarriedAmmo);
 		return FMath::Clamp(ReloadAmmo, 0, AmountCarriedAmmo);
 	}
@@ -416,8 +427,10 @@ void UCombatComponent::FinishedReload()
 {
 	if (Character == nullptr) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("FinishedReload"));
 	if (Character->HasAuthority())
 	{
+	UE_LOG(LogTemp, Warning, TEXT("Change State"));
 		CombatState = ECombatState::ECS_Unoccupied;
 		UpdateAmmoValue();
 	}
@@ -432,8 +445,7 @@ void UCombatComponent::ServerReload_Implementation()
 {
 	if (Character == nullptr) return;
 
-	UpdateAmmoValue(); 
-
+	UpdateAmmoValue();  
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
 
@@ -445,9 +457,9 @@ void UCombatComponent::UpdateAmmoValue()
 	int32 ReloadAmount = AmountToReload(); 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
-		//CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
-		//CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-		CarriedAmmo -= ReloadAmount;
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		//CarriedAmmo -= ReloadAmount;
 	}
 
 	//for server
