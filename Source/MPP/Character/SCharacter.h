@@ -35,13 +35,17 @@ public:
 	
 	FVector GetHitTarget();
 
-	void UpdateHUDHealth();
 
 	UPROPERTY(Replicated)
 	bool bDisableGameplay = false;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+
+	void SpawnDefaultWeapon();
+	
+	void UpdateHUDHealth();
+	void UpdateHUDAmmo();
 
 protected: 
 	virtual void BeginPlay() override;
@@ -66,10 +70,9 @@ protected:
 
 	UFUNCTION()
 	void ReceivedDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
 	bool bElimmed = false;
-	
 
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
@@ -120,6 +123,13 @@ private:
 	UPROPERTY()
 	class ASPlayerState* SPlayerState;
 
+
+	/*
+	Defualt Weapon
+	*/
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
 	/*
 	Health
 	*/
@@ -128,7 +138,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.0f; 
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float LastHealth);
 	 
 	FTimerHandle ElimTimer;
 	void ElimTimerFinished();
@@ -179,7 +189,10 @@ public:
 	FORCEINLINE UCombatComponent* GetCombat() { return Combat; }
 	FORCEINLINE bool GetDisableGamePlay() { return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
-	
+	FORCEINLINE	UBuffComponent* GetBuff() const { return Buff; }
+	FORCEINLINE	void SetHealth(float Amount) { Health = FMath::Min(Amount, MaxHealth); }
+	FORCEINLINE	float GetHealth() { return Health; }
+	FORCEINLINE	float GetMaxHealth() { return MaxHealth; }
 	ECombatState GetCombatState() const;
 	
 

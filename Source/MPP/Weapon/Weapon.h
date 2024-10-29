@@ -49,6 +49,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Crosshair")
 	UTexture2D* CrosshairsBottom;
+
+	bool bDestroyWeapon = false;
 protected: 
 	virtual void BeginPlay() override;
 	

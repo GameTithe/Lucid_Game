@@ -3,16 +3,11 @@
 
 #include "HealthPickup.h"
 #include "MPP/Character/SCharacter.h"
-#include "MPP/ShooterComponent/BuffComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
+#include "MPP/ShooterComponent/BuffComponent.h" 
 
 AHealthPickup::AHealthPickup()
 {
 	bReplicates = true;
-	PickupEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("PickupEffectComponent"));
-	PickupEffectComponent->SetupAttachment(RootComponent);
-
 }
 
 
@@ -23,22 +18,13 @@ void AHealthPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	ASCharacter* SCharacter = Cast<ASCharacter>(OtherActor);
 	if (SCharacter)
 	{
+		UBuffComponent* Buff =  SCharacter->GetBuff();
+		if (Buff)
+		{
+			Buff->Heal(HealAmount, HealingTime);
+		}
 	}
 
 	Destroy();
 }
-
-void AHealthPickup::Destroy()
-{
-	if (PickupEffect)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			this,
-			PickupEffect,
-			GetActorLocation(),
-			GetActorRotation()
-		);
-	}
-
-	Super::Destroy();
-}
+ 

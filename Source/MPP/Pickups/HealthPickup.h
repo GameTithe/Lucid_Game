@@ -14,9 +14,7 @@ class MPP_API AHealthPickup : public APickup
 {
 	GENERATED_BODY()
 public:
-	AHealthPickup();
-
-	virtual void Destroy();
+	AHealthPickup(); 
 protected:
 
 	virtual void OnSphereOverlap(
@@ -35,12 +33,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	float HealingTime = 5.0f;
 	 
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraComponent* PickupEffectComponent;
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* PickupEffect;
 
 
 };

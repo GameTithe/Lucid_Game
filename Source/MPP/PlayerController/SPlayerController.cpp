@@ -123,22 +123,26 @@ void ASPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
 
-	//PollInit();
+	PollInit();
 }
 
 void ASPlayerController::PollInit()
 {
 	if (CharacterOverlay == nullptr)
 	{  
+		 
 		if (SHUD && SHUD->CharacterOverlay)
-		{ 
-			//CharacterOverlay = SHUD->CharacterOverlay; 
+		{  
+			CharacterOverlay = SHUD->CharacterOverlay; 
 			if(CharacterOverlay)
-			{ 
-				//SetHUDHealth(HUDHealth, HUDMaxHealth);
+			{  
+				if(bInitHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
 				//SetHUDDefeats(HUDDefeats);
 				//SetHUDScore(HUDScore);
-			} 
+				if (bInitCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
+				if (bInitWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
+			}
+ 
 		}
 	}
 }
@@ -206,12 +210,12 @@ void ASPlayerController::SetHUDDefeats(int32 Defeats)
 {
 	SHUD = SHUD == nullptr ? Cast<ASHUD>(GetHUD()) : SHUD;
 
-	bool isValid =
+	bool bHUDValid =
 		SHUD &&
 		SHUD->CharacterOverlay &&
 		SHUD->CharacterOverlay->DefeatsAmount;
-
-	if (isValid)
+	
+	if (bHUDValid)
 	{ 
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		SHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
@@ -238,6 +242,11 @@ void ASPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		SHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(AmmoText));
 	}
+	else
+	{
+		bInitWeaponAmmo = true;
+		HUDWeaponAmmo = Ammo;
+	}
 }
 
 void ASPlayerController::SetHUDCarriedAmmo(int32 Ammo)
@@ -254,6 +263,11 @@ void ASPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		SHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(AmmoText));
 	} 
+	else
+	{
+		bInitCarriedAmmo = true;
+		HUDCarriedAmmo = Ammo;
+	}
 }
 
 void ASPlayerController::SetHUDMatchCount(float CountdownTime)

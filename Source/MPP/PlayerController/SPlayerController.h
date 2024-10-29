@@ -28,8 +28,7 @@ public:
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCount(float CountdownTime);
-	void SetHUDAnnouncementCount(float CountdownTime);
-
+	void SetHUDAnnouncementCount(float CountdownTime); 
 	void SetHUDTime();
 	 
 	void OnMatchStateSet(FName State);
@@ -88,7 +87,16 @@ private:
 	class UCharacterOverlay* CharacterOverlay;
 ;
 	float HUDHealth;
+	bool bInitHealth = false;
+	 
 	float HUDMaxHealth;
 	float HUDScore;
 	float HUDDefeats;
+
+	float HUDCarriedAmmo;
+	bool bInitCarriedAmmo = false;
+
+	float HUDWeaponAmmo;
+	bool bInitWeaponAmmo = false;
+
 };

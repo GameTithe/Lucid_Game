@@ -67,11 +67,27 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ASCharacter, bDisableGameplay);
 }
 
+void ASCharacter::SpawnDefaultWeapon()
+{
+	ASGameMode* SGameMode = Cast<ASGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (SGameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		Combat->EquipWeapon(StartingWeapon);
+	}
+}
+
+
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnDefaultWeapon();
 	UpdateHUDHealth();
+	UpdateHUDAmmo();
+
 
 	// 서버 데미지 처리 
 	if (HasAuthority())
@@ -87,6 +103,16 @@ void ASCharacter::UpdateHUDHealth()
 	{ 
 		SController->SetHUDHealth(Health, MaxHealth);
 	} 
+}
+void ASCharacter::UpdateHUDAmmo()
+{
+	SController = SController == nullptr ? Cast<ASPlayerController>(Controller) : SController;
+
+	if (SController && Combat && Combat->EquippedWeapon)
+	{
+		SController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		SController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
 }
 void ASCharacter::Tick(float DeltaTime)
 {
@@ -121,6 +147,7 @@ void ASCharacter::PostInitializeComponents()
 	if (Buff)
 	{
 		Buff->Character = this;
+		Buff->SetinitSpeed(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched, Combat->AimWalkSpeed);
 	}
 }
 
@@ -343,7 +370,14 @@ void ASCharacter::Elim()
 
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->EquippedWeapon->Dropped();
+		}
 	}
 	MulticastElim(); 
 	 
@@ -478,7 +512,7 @@ void ASCharacter::PlayReloadMontage()
 void ASCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
-
+	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance && HitReactMontage)
@@ -544,10 +578,13 @@ void ASCharacter::HideCameraIfCharacterClose()
 	}
 } 
 
-void ASCharacter::OnRep_Health()
+void ASCharacter::OnRep_Health(float LastHealth)
 {
-	PlayHitReactMontage();
 	UpdateHUDHealth();
+	if (Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
 }
 
 void ASCharacter::UpdateDissloveMaterial(float DissolveValue)

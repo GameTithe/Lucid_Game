@@ -15,6 +15,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundWave.h"
 #include "MPP/Character/SAnimInstance.h"
+#include "MPP/ShooterComponent/BuffComponent.h"
 
 //#include "MPP/Interface/CrosshairInterface.h"
 
@@ -304,8 +305,8 @@ bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr)  return false;  
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
-}
-//Server
+} 
+
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 { 
 	if (Character == nullptr || WeaponToEquip == nullptr) return;  
@@ -313,10 +314,12 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	if (EquippedWeapon)
 	{
+		EquippedWeapon->bDestroyWeapon = false;
 		EquippedWeapon->Dropped();
 	}
 	 
 	EquippedWeapon = WeaponToEquip;
+	EquippedWeapon->bDestroyWeapon = true;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped); 
 
 	if (EquippedWeapon->EquipSound)

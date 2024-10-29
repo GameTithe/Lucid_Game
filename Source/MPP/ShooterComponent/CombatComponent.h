@@ -38,6 +38,12 @@ public:
 
 	void PickupAmmo(EWeaponType type, int32 AmmoAmount);
 
+	/*
+	Speed
+	*/
+	void SetAimSpeed(float SpeedOfAim) { AimWalkSpeed = SpeedOfAim; } 
+	FORCEINLINE void SetBaseWalkSpeed(float speed) { BaseWalkSpeed = speed; }
+	
 protected: 
 	virtual void BeginPlay() override;
 	void SetAiming(bool bisAiming);
@@ -172,6 +178,6 @@ private:
 	
 	void UpdateCarriedAmmo();
 	void UpdateShotgunAmmoValue();
-	
+
 };
 
