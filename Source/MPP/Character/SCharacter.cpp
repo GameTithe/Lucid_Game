@@ -19,6 +19,8 @@
 #include "MPP/PlayerState/SPlayerState.h"
 #include "MPP/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "MPP/ShooterComponent/BuffComponent.h"
+
 ASCharacter::ASCharacter()
 {
  	PrimaryActorTick.bCanEverTick = true;
@@ -40,6 +42,9 @@ ASCharacter::ASCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	Buff->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -112,6 +117,10 @@ void ASCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
+	}
+	if (Buff)
+	{
+		Buff->Character = this;
 	}
 }
 

@@ -35,6 +35,9 @@ public:
 	void ShotgunShellReload();
 
 	void JumpToShotgunEnd();
+
+	void PickupAmmo(EWeaponType type, int32 AmmoAmount);
+
 protected: 
 	virtual void BeginPlay() override;
 	void SetAiming(bool bisAiming);
@@ -143,6 +146,9 @@ private:
 	//Ammo container
 	
 	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedAmmo = 500;
+
+	UPROPERTY(EditAnywhere)
 	int32 StartingARAmmo = 30;
 	UPROPERTY(EditAnywhere)
 	int32 StartingRocketAmmo = 4;
@@ -164,7 +170,7 @@ private:
 	UFUNCTION()
 	void OnRep_CombatState();
 	
-	void UpdateAmmoValue();
+	void UpdateCarriedAmmo();
 	void UpdateShotgunAmmoValue();
 	
 };

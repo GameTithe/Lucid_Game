@@ -7,7 +7,6 @@
 #include "CharacterTypes/TurningInPlace.h"
 #include "MPP/Interface/CrosshairInterface.h"
 #include "Components/TimelineComponent.h" 
-
 #include "MPP/SType/CombatState.h"
 #include "SCharacter.generated.h" 
 
@@ -89,6 +88,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess ="true"))
 	class UCombatComponent* Combat;
+	UPROPERTY(VisibleAnywhere)
+	class UBuffComponent* Buff;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
