@@ -241,7 +241,14 @@ void ASCharacter::EquipButtonPressed()
 	{
 		if (HasAuthority())
 		{ 
-			Combat->EquipWeapon(OverlappingWeapon);
+			if (OverlappingWeapon)
+			{
+				Combat->EquipWeapon(OverlappingWeapon);
+			}
+			else if (Combat->ShoulSwapWeapons())
+			{
+				Combat->SwapWeapons();
+			}
 		}
 		else
 		{ 
@@ -256,7 +263,14 @@ void ASCharacter::ServerEquipButtonPressed_Implementation()
 {   
 	if (Combat)
 	{   
-		Combat->EquipWeapon(OverlappingWeapon);
+		if(OverlappingWeapon)
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else if(Combat->ShoulSwapWeapons())
+		{
+			Combat->SwapWeapons();
+		}
 	}
 }
  
@@ -624,7 +638,6 @@ void ASCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		}
 	}
 }
-
 bool ASCharacter::IsWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);

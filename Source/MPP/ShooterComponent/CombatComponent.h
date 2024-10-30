@@ -25,6 +25,8 @@ public:
 	Weapon
 	*/
 	void EquipWeapon(class AWeapon* WeaponToEquip); 
+	void SwapWeapons();
+
 	void DropEquippedWeapon();
 
 	UPROPERTY(EditAnywhere)
@@ -198,5 +200,7 @@ private:
 	void UpdateCarriedAmmo();
 	void UpdateShotgunAmmoValue();
 
+public:
+	bool ShoulSwapWeapons();
 };
 

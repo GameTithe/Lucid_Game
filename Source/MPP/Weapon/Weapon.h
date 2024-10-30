@@ -13,6 +13,7 @@ enum class EWeaponState : uint8
 {
 	EWS_Initial UMETA(DisplayName = "Initial Name"),
 	EWS_Equipped UMETA(DisplayName = "Equipped"),
+	EWS_EquippedSecondary UMETA(DisplayName = "EWS_EquippedSecondary"),
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
 
 	EWS_MAX UMETA(DisplayName = "Default MAX")
@@ -28,6 +29,7 @@ public:
 	virtual void Tick(float DeltaTime) override; 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnRep_Owner() override;
+	virtual void OnEquippedSecondary();
 
 	void SetHUDAmmo();
 
@@ -57,7 +59,12 @@ public:
 	void EnableCustomDepth(bool bEnable);
 protected: 
 	virtual void BeginPlay() override;
-	
+	virtual void OnWeaponStateSet();
+
+	virtual void OnEquipped();
+	virtual void OnDropped();
+
+
 	UFUNCTION()
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
