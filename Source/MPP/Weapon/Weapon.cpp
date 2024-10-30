@@ -115,8 +115,7 @@ void AWeapon::OnRep_WeaponState()
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			WeaponMesh->SetEnableGravity(true);
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		} 
-		EnableCustomDepth(false);
+		}  
 		break;
 	case EWeaponState::EWS_Dropped:  
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -198,8 +197,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			WeaponMesh->SetEnableGravity(true);
 			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		}	
-		EnableCustomDepth(false);
+		}	 
 		break;
 
 	case EWeaponState::EWS_Dropped: 

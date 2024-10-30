@@ -51,6 +51,10 @@ public:
 	UTexture2D* CrosshairsBottom;
 
 	bool bDestroyWeapon = false;
+	/*
+	custom depth
+	*/
+	void EnableCustomDepth(bool bEnable);
 protected: 
 	virtual void BeginPlay() override;
 	
@@ -72,10 +76,6 @@ protected:
 		int32 OtherBodyIndex
 	);
 	 
-	/*
-	custom depth
-	*/
-	void EnableCustomDepth(bool bEnable);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")

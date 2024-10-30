@@ -24,7 +24,8 @@ public:
 	/*
 	Weapon
 	*/
-	void EquipWeapon(class AWeapon* WeaponToEquip);
+	void EquipWeapon(class AWeapon* WeaponToEquip); 
+	void DropEquippedWeapon();
 
 	UPROPERTY(EditAnywhere)
 	bool bCanFire = true;
@@ -51,9 +52,22 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 
+	/*
+	Equip Weapon
+	*/
 	UFUNCTION()
-	void OnRep_EquippedWeapon();
+	void OnRep_EquippedWeapon(); 
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
 
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
+
+	void PlayEquipWeaponSound(AWeapon* WeaponToEquip);
+	void AttachActorToRightHand(AActor* ActorToAttach);
+	void AttachActorToBackpack(AActor* ActorToAttach);
+
+	  
 
 	void Fire();
 	
@@ -94,8 +108,13 @@ private:
 	class ASPlayerController* Controller;
 	class ASHUD* HUD;
 
+
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+	AWeapon* SecondaryWeapon;
+
 
 	UPROPERTY(Replicated)
 	bool bAiming; 
