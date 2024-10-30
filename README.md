@@ -1,4 +1,4 @@
-# **LLM 기반 FPS Defense 게임:Lucid**
+# **LLM 기반 FPS Defense 게임 : Lucid**
 
 ## 📋 프로젝트 개요
 > **LLM 기반 FPS Defense 게임 Lucid**는 4인 멀티플레이어를 지원하는 3D FPS 생존 게임입니다. AI 기반 음성 인식 인터페이스와 커스텀 보스 생성 기능을 통해 창의적이고 몰입감 있는 플레이 경험을 제공하는 것을 목표로 합니다.
@@ -29,7 +29,7 @@
 - **협업 도구**: Notion, Discord, Google Meet
 - **서버 및 데이터베이스**: AWS EC2, RDS, Docker
 - **CI/CD 파이프라인**: GitHub Actions
-- 
+
 
 ## 🔧 기술 및 브랜치 전략
 ### 사용 기술
