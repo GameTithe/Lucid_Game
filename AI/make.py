@@ -60,9 +60,9 @@ class ChatAPI:
 
     def create_chat_request(self, user_message, system_message):
         return {
-            "app_id": "77e64f9d-a586-5ec4-8b6e-b88a91d56a93",
-            "name": "sejong_70b_stream",
-            "item": ["maumgpt-maal2-70b-streamchat"],
+            "app_id": "",
+            "name": "",
+            "item": [""],
             "param": [{
                 "utterances": [
                     {
@@ -233,10 +233,10 @@ class ChromaRAGSystem:
             raise
         
 def main():
-    maal_key = "77e64f9d-a586-5ec4-8b6e-b88a91d56a93"
-    maum_url = "https://norchestra.maum.ai/harmonize/dosmart"
-    mesh_url = "https://api.meshy.ai"
-    mesh_key = "msy_u4lJGuxa1Ux3iTjTLTPtj6RKhYMV9VhBmcMY"
+    maal_key = ""
+    maum_url = ""
+    mesh_url = ""
+    mesh_key = ""
     
     chat_api = ChatAPI(maal_key, maum_url)
     meshy = MeshyAPI(mesh_key, mesh_url)
@@ -253,7 +253,7 @@ def main():
         rag_system = ChromaRAGSystem(maal_key, maum_url)
         
         # 웹페이지 로드 및 처리
-        url = "https://namu.wiki/w/%EA%B3%A8%EB%A0%98"
+        url = ""
         num_chunks = rag_system.load_and_process_url(url)
         print(f"웹페이지가 {num_chunks}개의 청크로 분할되었습니다.")
         
