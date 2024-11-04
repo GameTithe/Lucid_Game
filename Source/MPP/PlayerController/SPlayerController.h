@@ -22,6 +22,7 @@ private:
 	void PollInit();
 	 
 public: 
+
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
@@ -34,9 +35,15 @@ public:
 	void OnMatchStateSet(FName State);
 
 	bool bInitHUD = false;
+
+	void ShowReturnToMainMenu();
+	 
+	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void ReceivedPlayer() override;
+	virtual void SetupInputComponent() override;
 	 
 	/*
 	Sync Time Between Server and Client 
@@ -63,9 +70,23 @@ protected:
 	UPROPERTY()
 	class ASGameMode* SGameMode;
 
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+
 private:
 	UPROPERTY()
 	class ASHUD* SHUD; 
+
+	/*
+	Return to main menu
+	*/
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<class UUserWidget> ReturnToMainMenuWidget;
+
+	UPROPERTY()
+	class UReturnToMainMenu* ReturnToMainMenu;
+
+	bool bReturnToMainMenuOpen = false;
 
 	float MatchTime = 0.0f;
 	float WarmupTime = 0.0f;

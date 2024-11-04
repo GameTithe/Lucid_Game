@@ -90,7 +90,16 @@ void ASGameMode::PlayerEliminated(ASCharacter* ElimmedCharacter, APlayerControll
 
 	if (ElimmedCharacter)
 	{ 
-		ElimmedCharacter->Elim();
+		ElimmedCharacter->Elim(false);
+	}
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		ASPlayerController* SPlayer = Cast<ASPlayerController>(*It);
+		if (SPlayer && AttackerPlayetState && VictimPlayerState)
+		{
+			SPlayer->BroadcastElim(AttackerPlayetState, VictimPlayerState);
+		}
 	}
 }
 
@@ -108,5 +117,24 @@ void ASGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* Elimm
 
 		int32 Selection  = FMath::RandRange(0, StartPoints.Num() - 1);
 		RestartPlayerAtPlayerStart(ElimmedController, StartPoints[Selection]);
+	}
+}
+
+void ASGameMode::PlayerLeftGame(ASPlayerState* PlayerLeaving)
+{
+	//TODO: call elim, passing in true for bLeftGame 
+	 
+	if (PlayerLeaving == nullptr) return;
+
+	ASGameState* SGameState = GetGameState<ASGameState>();
+	if (SGameState && SGameState->TopScoringPlayers.Contains(PlayerLeaving))
+	{
+		SGameState->TopScoringPlayers.Remove(PlayerLeaving);
+	}
+
+	ASCharacter* CharacterLeaving = Cast<ASCharacter>(PlayerLeaving->GetPawn());
+	if (CharacterLeaving)
+	{
+		CharacterLeaving->Elim(true);
 	}
 }

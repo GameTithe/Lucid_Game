@@ -17,6 +17,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			bUseSeamlessTravel = true;
 			//게임 모드에는 servermode 밖에 없고 servermode를 이동하면 client도 같이 이동한다. 
 			World->ServerTravel(FString("/Game/Maps/BlasterMap?listen"));
+			//World->ServerTravel(FString("/Game/Maps/SampleMap1?listen"));
 		}
 	}
 }

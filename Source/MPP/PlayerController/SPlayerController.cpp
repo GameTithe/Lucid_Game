@@ -17,6 +17,69 @@
 #include "MPP/ShooterComponent/CombatComponent.h" 
 #include "MPP/GameState/SGameState.h"
 #include "MPP/PlayerState/SPlayerState.h"
+#include "Components/InputComponent.h"
+#include "MPP/HUD/ReturnToMainMenu.h"
+
+void ASPlayerController::ShowReturnToMainMenu()
+{   
+	if (ReturnToMainMenuWidget == nullptr) return; 
+	if (ReturnToMainMenu == nullptr)
+	{ 
+		ReturnToMainMenu = CreateWidget<UReturnToMainMenu>(this, ReturnToMainMenuWidget);
+	}
+
+	if (ReturnToMainMenu)
+	{  
+		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
+		if (bReturnToMainMenuOpen)
+		{ 
+			ReturnToMainMenu->MenuSetup();
+		}
+		else
+		{ 
+			ReturnToMainMenu->MenuTearDown();
+		}
+	}
+}
+
+void ASPlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
+{
+	ClientElimAnnouncement(Attacker, Victim);
+}
+
+void ASPlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+	if (Attacker && Victim && Self)
+	{
+		SHUD = SHUD == nullptr ? Cast<ASHUD>(GetHUD()) : SHUD;
+		if (SHUD)
+		{
+			if (Attacker == Self && Victim != Self)
+			{
+				SHUD->AddElimAnnouncement("YOU", Victim->GetPlayerName());
+				return;
+			}
+			if (Victim == Self && Attacker != Self)
+			{
+				SHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "YOU");
+				return;
+			}
+			if (Attacker == Victim && Attacker == Self)
+			{
+				SHUD->AddElimAnnouncement("You", "Youtself");
+				return;
+			}
+			if (Attacker == Victim && Attacker != Self)
+			{
+				SHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "Themselves");
+				return;
+			}
+
+			SHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Victim->GetPlayerName());
+		}
+	}
+}
 
 
 void ASPlayerController::BeginPlay()
@@ -156,6 +219,15 @@ void ASPlayerController::CheckTimeSync(float DeltaTime)
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSyncRunningTime = 0.0f;
 	}
+}
+
+void ASPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	if (InputComponent == nullptr) return;
+
+	InputComponent->BindAction("Quit", EInputEvent::IE_Pressed, this, &ASPlayerController::ShowReturnToMainMenu);
+
 }
 
 void ASPlayerController::SetHUDHealth(float Health, float MaxHealth)

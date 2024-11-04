@@ -375,7 +375,75 @@ void ASCharacter::ReloadButtonPressed()
 }
 
 
-void ASCharacter::Elim()
+void ASCharacter::Elim(bool bPlayerLeftGame)
+{
+	DropOrDestroyWeapons();
+	MulticastElim(bPlayerLeftGame); 
+
+}
+void ASCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
+{
+	bLeftGame = bPlayerLeftGame;
+
+	bElimmed = true;
+	PlayElimMontage();
+
+	//start dissolve effect
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), -0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.0f);
+	}
+
+	StartDissolve();
+
+
+	//disable character movement
+	GetCharacterMovement()->DisableMovement(); //stop move
+	GetCharacterMovement()->StopMovementImmediately(); //stop rotate
+	bDisableGameplay = true;
+
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bool bHideSniperScope =
+		Combat && Combat->EquippedWeapon &&
+		Combat->bAiming &&
+		Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+
+
+	if (bHideSniperScope) ShowSniperScopeWidget(false);
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ASCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ASCharacter::ElimTimerFinished()
+{
+	ASGameMode* GameMode = GetWorld()->GetAuthGameMode<ASGameMode>();
+
+	if (GameMode && !bLeftGame)
+	{
+		GameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+void ASCharacter::DropOrDestroyWeapons()
 {
 	if (SController)
 	{
@@ -393,62 +461,16 @@ void ASCharacter::Elim()
 			Combat->EquippedWeapon->Dropped();
 		}
 	}
-	MulticastElim(); 
-	 
-	GetWorldTimerManager().SetTimer(
-		ElimTimer,
-		this,
-		&ASCharacter::ElimTimerFinished,
-		ElimDelay
-	);
-} 
-void ASCharacter::MulticastElim_Implementation()
-{
-	bElimmed = true;
-	PlayElimMontage();
-
-	//start dissolve effect
-	if (DissolveMaterialInstance)
-	{
-		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
-		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
-		
-		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), -0.55f);
-		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.0f);
-	}
-
-	StartDissolve();
-
-
-	//disable character movement
-	GetCharacterMovement()->DisableMovement(); //stop move
-	GetCharacterMovement()->StopMovementImmediately(); //stop rotate
-	bDisableGameplay = true;
-	
-	if (Combat)
-	{
-		Combat->FireButtonPressed(false);
-	}
-	 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	bool bHideSniperScope =
-		Combat && Combat->EquippedWeapon && 
-		Combat->bAiming && 
-		Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
-
-
-	if (bHideSniperScope) ShowSniperScopeWidget(false);
 }
 
-void ASCharacter::ElimTimerFinished()
+void ASCharacter::ServerLeaveGame_Implementation()
 {
 	ASGameMode* GameMode = GetWorld()->GetAuthGameMode<ASGameMode>();
-	
-	if (GameMode)
-	{ 
-		GameMode->RequestRespawn(this, Controller);
+	SPlayerState = SPlayerState == nullptr ? GetPlayerState<ASPlayerState>() : SPlayerState;
+
+	if (GameMode && SPlayerState)
+	{
+		GameMode->PlayerLeftGame(SPlayerState);
 	}
 }
 

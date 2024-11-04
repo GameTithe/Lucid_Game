@@ -10,6 +10,8 @@
 #include "MPP/SType/CombatState.h"
 #include "SCharacter.generated.h" 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
+
 UCLASS()
 class MPP_API ASCharacter : public ACharacter, public ICrosshairInterface
 {
@@ -28,10 +30,12 @@ public:
 	void PlayHitReactMontage();
 	void PlayElimMontage();
 
-	void Elim();
+	void Elim(bool bPlayerLeftGame);
+
+	void DropOrDestroyWeapons();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastElim();
+	void MulticastElim(bool bPlayerLeftGame);
 	
 	FVector GetHitTarget();
 
@@ -45,7 +49,12 @@ public:
 	void SpawnDefaultWeapon();
 	
 	void UpdateHUDHealth();
-	void UpdateHUDAmmo();
+	void UpdateHUDAmmo(); 
+
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+	FOnLeftGame OnLeftGame;
+
 
 protected: 
 	virtual void BeginPlay() override;
@@ -146,7 +155,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float ElimDelay = 3.0f;
 
-	
+	bool bLeftGame = false;
 	/*
 	Dissolve Effect
 	*/
