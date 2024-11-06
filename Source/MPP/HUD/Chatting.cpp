@@ -7,54 +7,56 @@
 #include "Components/EditableText.h"
 
 void UChatting::NativeConstruct()
-{	
+{
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
 		ChatText->OnTextCommitted.AddDynamic(this, &UChatting::OnTextCommitted);
+		ChatText->SetIsEnabled(false);
 	}
-	ChatText->SetIsEnabled(false);
 }
 
 void UChatting::ActivateChatText()
 {
 	if (ChatText)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Chatting.ccp Activechattext"));
 		ChatText->SetIsEnabled(true);
 		ChatText->SetFocus();
 	}
 }
 
+void UChatting::DeactiveChatText(ASPlayerController* Controller)
+{
+	if (ChatText && Controller)
+	{
+		ChatText->SetText(FText::GetEmpty());
+		ChatText->SetIsEnabled(false);
+
+		FInputModeGameOnly InputMode;
+		Controller->SetInputMode(InputMode);
+	}
+}
+
 void UChatting::OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)
-{ 
-	if (CommitMethod == ETextCommit::OnEnter)
+{
+	if (CommitMethod == ETextCommit::OnEnter && ChatText)
 	{ 
-		if (ChatText)
+		FText InputText = ChatText->GetText();
+
+		if (!InputText.IsEmpty())
 		{
-			// 좌우 공백 제거
-			FText InputText = ChatText->GetText();
-			FString TrimmedText = InputText.ToString().TrimStartAndEnd();
-
-			if (!TrimmedText.IsEmpty())
+			ASPlayerController* PlayerController = Cast<ASPlayerController>(GetWorld()->GetFirstPlayerController());
+			if (PlayerController)
 			{
-				ASPlayerController* PlayerController = Cast<ASPlayerController>(GetWorld()->GetFirstPlayerController());
-				if (PlayerController)
-				{ 
-					APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
-					FString Message = FString::Printf(TEXT("%s : %s"), *PlayerState->GetPlayerName(), *TrimmedText);
-					// 채팅 메시지를 보내기 위한 Server RPC 호출
-					PlayerController->ServerSendChatMessage(Message);
-					 
-					FInputModeGameOnly InputMode;
-					PlayerController->SetInputMode(InputMode);
+				APlayerState* PlayerState = PlayerController->GetPlayerState<APlayerState>();
+				FString Message = FString::Printf(TEXT("%s: %s"), *PlayerState->GetPlayerName(), *InputText.ToString());
 
-					// 채팅창 비우고 비활성화
-					ChatText->SetText(FText::GetEmpty());
-					ChatText->SetIsEnabled(false);
-				}
+				// 채팅 메시지를 보내기 위한 Server RPC 호출
+				PlayerController->ServerSendChatMessage(Message);
+				DeactiveChatText(PlayerController);
 			}
 		}
 	}
+
 }
 

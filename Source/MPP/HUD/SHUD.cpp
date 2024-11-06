@@ -102,35 +102,6 @@ void ASHUD::AddCharacterOverlay()
 	}
 }
 
-void ASHUD::AddChatting()
-{
-	if(Chatting)
-	{
-		Chatting->AddToViewport();
-	}
-}
-
-void ASHUD::AddChatMessage(const FString& Message)
-{
-	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
-	Chatting = Chatting == nullptr ? CreateWidget<UChatting>(OwningPlayer, ChattingClass) : Chatting;
-
-	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg"));
-	if (OwningPlayer && ChattingClass && Chatting && ChatMessageClass)
-	{
-	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg2"));
-		UChatMessage* ChatMessageWidget = CreateWidget<UChatMessage>(OwningPlayer, ChatMessageClass);
-
-		if (ChatMessageWidget)
-		{
-	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg3"));
-			ChatMessageWidget->SetChatMessage(Message);
-			Chatting->ChatScrollBox->AddChild(ChatMessageWidget);
-			Chatting->ChatScrollBox->ScrollToEnd();
-			Chatting->ChatScrollBox->bAnimateWheelScrolling = true;
-		}
-	}
-}
 
 void ASHUD::DrawHUD()
 {
@@ -187,4 +158,35 @@ void ASHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector
 		1.0f,
 		Color
 	);
+}
+/*
+Chat
+*/
+void ASHUD::AddChatting()
+{
+	if (Chatting)
+	{
+		Chatting->AddToViewport();
+	}
+}
+
+void ASHUD::AddChatMessage(const FString& Message)
+{
+	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
+	if(ChattingClass)
+		Chatting = Chatting == nullptr ? CreateWidget<UChatting>(OwningPlayer, ChattingClass) : Chatting;
+	 
+	if (OwningPlayer && Chatting && ChatMessageClass)
+	{ 
+		UChatMessage* ChatMessageWidget = CreateWidget<UChatMessage>(OwningPlayer, ChatMessageClass);
+
+		if (ChatMessageWidget)
+		{ 
+			ChatMessageWidget->SetChatMessage(Message);
+			
+			Chatting->ChatScrollBox->AddChild(ChatMessageWidget);
+			Chatting->ChatScrollBox->ScrollToEnd();
+			Chatting->ChatScrollBox->bAnimateWheelScrolling = true;
+		}
+	}
 }

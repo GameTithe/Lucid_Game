@@ -379,8 +379,7 @@ void ASCharacter::ChatButtonPressed()
 {
 	SController = SController == nullptr ? Cast<ASPlayerController>(Controller) : SController;
 	if (SController)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Character ChatbuttonPressed"));
+	{ 
 		SController->ActiveChatBox();
 	}
 }

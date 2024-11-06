@@ -26,6 +26,9 @@ public:
 	UFUNCTION()
 	void ActivateChatText();
 
+	UFUNCTION()
+	void DeactiveChatText(class ASPlayerController* Controller);
+
 	UFUNCTION() 
 	void OnTextCommitted(const FText& Text, ETextCommit::Type CommitMethod);
 	
