@@ -138,3 +138,14 @@ void ASGameMode::PlayerLeftGame(ASPlayerState* PlayerLeaving)
 		CharacterLeaving->Elim(true);
 	}
 }
+
+void ASGameMode::SendChatMessage(const FString& Message)
+{ 
+	auto it = GetWorld()->GetPlayerControllerIterator();
+
+	for(auto i = it; it; it++)
+	{
+		ASPlayerController* Controller = Cast<ASPlayerController>(*it);
+		Controller->ClientAddChatMessage(Message);
+	}
+}

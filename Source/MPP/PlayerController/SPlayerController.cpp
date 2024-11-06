@@ -19,6 +19,10 @@
 #include "MPP/PlayerState/SPlayerState.h"
 #include "Components/InputComponent.h"
 #include "MPP/HUD/ReturnToMainMenu.h"
+#include "MPP/HUD/Chatting.h"
+#include "MPP/HUD/ChatMessage.h"
+#include "MPP/HUD/Chatting.h"
+#include "MPP/HUD/SHUD.h"
 
 void ASPlayerController::ShowReturnToMainMenu()
 {   
@@ -203,7 +207,7 @@ void ASPlayerController::PollInit()
 				//SetHUDDefeats(HUDDefeats);
 				//SetHUDScore(HUDScore);
 				if (bInitCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
-				if (bInitWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
+				if (bInitWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo); 
 			}
  
 		}
@@ -228,6 +232,34 @@ void ASPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("Quit", EInputEvent::IE_Pressed, this, &ASPlayerController::ShowReturnToMainMenu);
 
+}
+
+void ASPlayerController::ActiveChatBox()
+{
+	SHUD = SHUD == nullptr ? Cast<ASHUD>(GetHUD()) : SHUD;
+	if (SHUD && SHUD->Chatting)
+	{ 
+		SHUD->Chatting->ActivateChatText();
+	}
+}
+
+void ASPlayerController::ServerSendChatMessage_Implementation(const FString& msg)
+{
+	ASGameMode* GameMode = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+	if(GameMode)
+	{
+		GameMode->SendChatMessage(msg);
+	}
+}
+ 
+
+void ASPlayerController::ClientAddChatMessage_Implementation(const FString& msg)
+{
+	SHUD = SHUD == nullptr ? Cast<ASHUD>(GetHUD()) : SHUD;
+	if (SHUD)
+	{
+		SHUD->AddChatMessage(msg);
+	}
 }
 
 void ASPlayerController::SetHUDHealth(float Health, float MaxHealth)

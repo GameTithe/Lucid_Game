@@ -74,6 +74,8 @@ protected:
 	void FireButtonReleased();
 	void ReloadButtonPressed();
 
+	void ChatButtonPressed();
+
 	void PollInit();
 
 

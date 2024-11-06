@@ -13,8 +13,8 @@ UCLASS()
 class MPP_API UElimAnnouncement : public UUserWidget
 {
 public:
-
 	GENERATED_BODY()
+
 	void SetElimAnnouncementText(FString AttackerName, FString VictimName);
 
 	UPROPERTY(meta = (BindWidget))

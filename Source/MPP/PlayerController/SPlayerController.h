@@ -22,6 +22,15 @@ private:
 	void PollInit();
 	 
 public: 
+	UFUNCTION()
+	void ActiveChatBox();
+
+	UFUNCTION(Server, Reliable)
+	void ServerSendChatMessage(const FString& msg);
+
+	UFUNCTION(Client, Reliable)
+	void ClientAddChatMessage(const FString& msg);
+
 
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);

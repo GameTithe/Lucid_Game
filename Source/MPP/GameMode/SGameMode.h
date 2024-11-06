@@ -29,6 +29,8 @@ public:
 	virtual void PlayerEliminated(class ASCharacter* ElimmedCharacter, class APlayerController* VictimController, APlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimmedCharacter,AController* ElimmedController);
 
+	void SendChatMessage(const FString& Message);
+
 	void PlayerLeftGame(class ASPlayerState* PlayerLeaving);
 
 	UPROPERTY(EditDefaultsOnly)

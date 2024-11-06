@@ -182,6 +182,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &ThisClass::FireButtonReleased);
 	PlayerInputComponent->BindAction(TEXT("Reload"), EInputEvent::IE_Pressed, this, &ThisClass::ReloadButtonPressed);
 
+	PlayerInputComponent->BindAction(TEXT("Chat"), EInputEvent::IE_Pressed, this, &ThisClass::ChatButtonPressed);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -371,6 +372,16 @@ void ASCharacter::ReloadButtonPressed()
 	if (Combat)
 	{
 		Combat->Reload(); 
+	}
+}
+
+void ASCharacter::ChatButtonPressed()
+{
+	SController = SController == nullptr ? Cast<ASPlayerController>(Controller) : SController;
+	if (SController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character ChatbuttonPressed"));
+		SController->ActiveChatBox();
 	}
 }
 

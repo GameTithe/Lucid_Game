@@ -35,6 +35,19 @@ public:
 
 	void AddCharacterOverlay();
 
+
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ChattingClass; 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ChatMessageClass; 
+	UPROPERTY(EditAnywhere, Category = "Annoucements")
+	class UChatting* Chatting;
+
+	void AddChatting();
+	void AddChatMessage(const FString& Message);
+
+
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
 
@@ -49,6 +62,13 @@ public:
 		
 	void AddAnnouncement();
 	void AddElimAnnouncement(FString Attacker, FString Victim);
+
+	UPROPERTY(EditAnywhere, Category = "Announcements")
+	TSubclassOf<UUserWidget> ChattingSystemClass;
+
+	UPROPERTY()
+	class UChattingSystem* ChattingSystem;
+
 
 protected:
 	virtual void BeginPlay() override; 

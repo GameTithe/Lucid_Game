@@ -8,15 +8,24 @@
 #include "MPP/Character/SCharacter.h"
 #include "MPP/HUD/Announcement.h"
 #include "ElimAnnouncement.h"
-
+#include "MPP/HUD/ChattingSystem.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
-
+#include "MPP/HUD/Chatting.h"
+#include "MPP/HUD/ChatMessage.h"
+#include "Components/ScrollBox.h"
 
 void ASHUD::BeginPlay()
 {
-	Super::BeginPlay(); 
+	Super::BeginPlay();
+	APlayerController* PlayerController = GetOwningPlayerController();
+
+	if (PlayerController && ChattingClass)
+	{ 
+		Chatting = CreateWidget<UChatting>(PlayerController, ChattingClass);
+		Chatting->AddToViewport();
+	}  
 }
 void ASHUD::AddAnnouncement()
 {
@@ -27,6 +36,7 @@ void ASHUD::AddAnnouncement()
 		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
 		Announcement->AddToViewport();
 	}
+
 }
 
 void ASHUD::AddElimAnnouncement(FString Attacker, FString Victim)
@@ -89,6 +99,36 @@ void ASHUD::AddCharacterOverlay()
 	{
 		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
 		CharacterOverlay->AddToViewport();
+	}
+}
+
+void ASHUD::AddChatting()
+{
+	if(Chatting)
+	{
+		Chatting->AddToViewport();
+	}
+}
+
+void ASHUD::AddChatMessage(const FString& Message)
+{
+	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
+	Chatting = Chatting == nullptr ? CreateWidget<UChatting>(OwningPlayer, ChattingClass) : Chatting;
+
+	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg"));
+	if (OwningPlayer && ChattingClass && Chatting && ChatMessageClass)
+	{
+	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg2"));
+		UChatMessage* ChatMessageWidget = CreateWidget<UChatMessage>(OwningPlayer, ChatMessageClass);
+
+		if (ChatMessageWidget)
+		{
+	UE_LOG(LogTemp, Warning, TEXT("Add CHat Msg3"));
+			ChatMessageWidget->SetChatMessage(Message);
+			Chatting->ChatScrollBox->AddChild(ChatMessageWidget);
+			Chatting->ChatScrollBox->ScrollToEnd();
+			Chatting->ChatScrollBox->bAnimateWheelScrolling = true;
+		}
 	}
 }
 
