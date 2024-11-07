@@ -11,6 +11,7 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ASPlayerState, Defeats);
+	DOREPLIFETIME(ASPlayerState, Team);
 
 }
 

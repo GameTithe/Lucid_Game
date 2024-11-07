@@ -36,12 +36,14 @@ protected:
 	void OnStartSession(bool bWasSuccessful);
 
 private:
-
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostButton;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* JoinButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UEditableText* MonsterText;
 
 	UFUNCTION()
 	void HostButtonClicked();
