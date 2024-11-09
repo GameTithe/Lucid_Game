@@ -164,16 +164,7 @@ void ASPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, fl
 	CooldownTime = Cooldown;
 	LevelStartingTime = LevelStarting; 
 	OnMatchStateSet(MatchState); 
-	
-	if (HasAuthority())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Server Alsp [layer"));
-	}
-	else
-	{
-		if(IsLocalController())
-			UE_LOG(LogTemp, Warning, TEXT("client Alsp [layer"));
-	}
+	 
 
 	if (SHUD && MatchState == MatchState::WaitingToStart)
 	{

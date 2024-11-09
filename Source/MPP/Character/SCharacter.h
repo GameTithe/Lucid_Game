@@ -85,6 +85,10 @@ protected:
 
 	
 private:
+	UPROPERTY()
+	class ASGameMode* SGameMode;
+
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
 

@@ -1,5 +1,7 @@
 #pragma once 
 
+#define MAX_PLAYER 2
+
 UENUM(BlueprintType)
 enum class ETeam : uint8
 {

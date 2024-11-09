@@ -9,6 +9,8 @@
 /**
  * 
  */
+class AController;
+class APlayerController;
 UCLASS()
 class MPP_API ATeamsSGameMode : public ASGameMode
 {
@@ -20,5 +22,6 @@ public:
 
 protected:
 	virtual void HandleMatchHasStarted() override;
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage) override;
 
 };

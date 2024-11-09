@@ -69,7 +69,8 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 void ASCharacter::SpawnDefaultWeapon()
 {
-	ASGameMode* SGameMode = Cast<ASGameMode>(UGameplayStatics::GetGameMode(this));
+	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
+
 	UWorld* World = GetWorld();
 	if (SGameMode && World && !bElimmed && DefaultWeaponClass)
 	{
@@ -155,7 +156,7 @@ void ASCharacter::Destroyed()
 {
 	Super::Destroyed();
 
-	ASGameMode* SGameMode = Cast<ASGameMode>(UGameplayStatics::GetGameMode(this));
+	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode; 
 	bool bMatchNotInProgress = SGameMode && SGameMode->GetMatchState() != MatchState::InProgress;
 
 	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
@@ -441,11 +442,11 @@ void ASCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 
 void ASCharacter::ElimTimerFinished()
 {
-	ASGameMode* GameMode = GetWorld()->GetAuthGameMode<ASGameMode>();
+	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
 
-	if (GameMode && !bLeftGame)
+	if (SGameMode && !bLeftGame)
 	{
-		GameMode->RequestRespawn(this, Controller);
+		SGameMode->RequestRespawn(this, Controller);
 	}
 	if (bLeftGame && IsLocallyControlled())
 	{
@@ -475,30 +476,36 @@ void ASCharacter::DropOrDestroyWeapons()
 
 void ASCharacter::ServerLeaveGame_Implementation()
 {
-	ASGameMode* GameMode = GetWorld()->GetAuthGameMode<ASGameMode>();
+	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
+
 	SPlayerState = SPlayerState == nullptr ? GetPlayerState<ASPlayerState>() : SPlayerState;
 
-	if (GameMode && SPlayerState)
+	if (SGameMode && SPlayerState)
 	{
-		GameMode->PlayerLeftGame(SPlayerState);
+		SGameMode->PlayerLeftGame(SPlayerState);
 	}
 }
 
 //For Server
 void ASCharacter::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
+	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
+	if (bElimmed || SGameMode == nullptr) return;
+	
+	Damage = SGameMode->CalculateDamage(InstigatedBy, Controller, Damage);
+
+	
 	Health = FMath::Clamp(Health - Damage, 0.0, MaxHealth);
 	PlayHitReactMontage();
 	UpdateHUDHealth();
 
 	if (Health <= 0.0f)
 	{
-		ASGameMode* GameMode = GetWorld()->GetAuthGameMode<ASGameMode>();
-		if (GameMode)
+		if (SGameMode)
 		{
 			SController = SController == nullptr ? Cast<ASPlayerController>(Controller) : SController;
 			ASPlayerController* Instigate = Cast<ASPlayerController>(InstigatedBy);
-			GameMode->PlayerEliminated(this, SController, Instigate); 
+			SGameMode->PlayerEliminated(this, SController, Instigate);
 		}
 	}
 }

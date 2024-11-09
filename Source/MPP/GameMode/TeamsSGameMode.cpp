@@ -5,6 +5,8 @@
 #include "MPP/GameState/SGameState.h"
 #include "MPP/PlayerState/SPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "MPP/PlayerController/SPlayerController.h"
+#include "MPP/SType/Team.h"
 
 void ATeamsSGameMode::PostLogin(APlayerController* NewPlayer)
 {
@@ -16,7 +18,7 @@ void ATeamsSGameMode::PostLogin(APlayerController* NewPlayer)
 		ASPlayerState* SPState = NewPlayer->GetPlayerState<ASPlayerState>();
 		if (SPState && SPState->GetTeam() == ETeam::ET_NoTeam)
 		{
-			if (SGameState->BlueTeam.Num() <= SGameState->RedTeam.Num())
+			if (SGameState->BlueTeam.Num() <= MAX_PLAYER)// = SGameState->RedTeam.Num())
 			{
 				SGameState->BlueTeam.AddUnique(SPState);
 				SPState->SetTeam(ETeam::ET_BlueTeam);
@@ -52,8 +54,7 @@ void ATeamsSGameMode::Logout(AController* Exiting)
 
 void ATeamsSGameMode::HandleMatchHasStarted()
 {
-	Super::HandleMatchHasStarted();
-
+	Super::HandleMatchHasStarted(); 
 	
 	ASGameState* SGameState = Cast<ASGameState>( UGameplayStatics::GetGameState(this));
 		
@@ -62,22 +63,40 @@ void ATeamsSGameMode::HandleMatchHasStarted()
 		for (auto player : SGameState->PlayerArray)
 		{
 			ASPlayerState* SPState = Cast<ASPlayerState>(player.Get());
-
+			 
+			 
 			if (SPState && SPState->GetTeam() == ETeam::ET_NoTeam)
-			{
-				if (SGameState->BlueTeam.Num() <= SGameState->RedTeam.Num())
-				{
+			{  
+				if (SGameState->BlueTeam.Num() < MAX_PLAYER)
+				{ 
 					SGameState->BlueTeam.AddUnique(SPState);
-					SPState->SetTeam(ETeam::ET_RedTeam);
-				}
-				else
-				{
-					SGameState->RedTeam.AddUnique(SPState);
 					SPState->SetTeam(ETeam::ET_BlueTeam);
 				}
+				else if(SGameState->RedTeam.Num() < MAX_PLAYER)
+				{ 
+					SGameState->RedTeam.AddUnique(SPState);
+					SPState->SetTeam(ETeam::ET_RedTeam);
+				}  
 			}
 		}
 
 	}
 
+}
+
+float ATeamsSGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Team Cal Dam"));
+	if (Attacker == nullptr || Victim == nullptr) return 0.0f;
+	
+	ASPlayerState* AttackerState =  Attacker->GetPlayerState<ASPlayerState>();
+	ASPlayerState* VictimState = Victim->GetPlayerState<ASPlayerState>();
+
+	UE_LOG(LogTemp, Warning, TEXT("Team Cal Dam2"));
+	if (Attacker == Victim) return 0.0f;
+	
+	if (AttackerState->GetTeam() == VictimState->GetTeam()) return 0.0;
+	
+	UE_LOG(LogTemp, Warning, TEXT("Team Cal Dam3"));
+	return BaseDamage;
 }

@@ -120,6 +120,11 @@ void ASGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* Elimm
 	}
 }
 
+float ASGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	return BaseDamage;
+}
+
 void ASGameMode::PlayerLeftGame(ASPlayerState* PlayerLeaving)
 {
 	//TODO: call elim, passing in true for bLeftGame 

@@ -27,7 +27,8 @@ public:
 	virtual void OnMatchStateSet() override;
 
 	virtual void PlayerEliminated(class ASCharacter* ElimmedCharacter, class APlayerController* VictimController, APlayerController* AttackerController);
-	virtual void RequestRespawn(class ACharacter* ElimmedCharacter,AController* ElimmedController);
+	virtual void RequestRespawn(class ACharacter* ElimmedCharacter,class AController* ElimmedController);
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 
 	void SendChatMessage(const FString& Message);
 

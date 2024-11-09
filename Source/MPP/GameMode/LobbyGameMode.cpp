@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LobbyGameMode.h"
+#include "MPP/SType/Team.h"
 #include "GameFramework/GameState.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -9,7 +10,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 	int32 NumOfPlayer = GameState.Get()->PlayerArray.Num();
 
-	if (NumOfPlayer == 2 )
+	if (NumOfPlayer == MAX_PLAYER )
 	{
 		UWorld* World = GetWorld();
 		if (World)
