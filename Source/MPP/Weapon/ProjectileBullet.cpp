@@ -14,18 +14,18 @@ AProjectileBullet::AProjectileBullet()
 }
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComo, FVector NormalImpulse, const FHitResult& Hit)
-{
+{ 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-
+	 
 	if (OwnerCharacter)
-	{
+	{ 
 		AController* OwnerController = OwnerCharacter->GetController();
 		if (OwnerController && HasAuthority())
-		{
+		{ 
 			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
 		}
 	}
-	
+	 
 
 	Super::OnHit(HitComp, OtherActor, OtherComo, NormalImpulse,Hit);
 }

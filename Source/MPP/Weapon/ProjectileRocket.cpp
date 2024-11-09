@@ -89,6 +89,7 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	{
 		ProjectileLoopComponent->Stop();
 	}
+
 	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 
 }

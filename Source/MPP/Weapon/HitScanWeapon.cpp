@@ -29,13 +29,15 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		FHitResult FireHit;
 		WeaponTraceHit(Start,HitTarget, FireHit);  
 
-		ASCharacter* SCharacter = Cast<ASCharacter>(FireHit.GetActor());
-
+		//ASCharacter* SCharacter = Cast<ASCharacter>(FireHit.GetActor());
+		ACharacter* DamagedCharacter = Cast<ACharacter>(FireHit.GetActor());
 		UWorld* World = GetWorld();
-		if (SCharacter && HasAuthority() && InstigaterController)
+			UE_LOG(LogTemp, Warning , TEXT("Scan Apply1"));
+		if (DamagedCharacter && HasAuthority() && InstigaterController)
 		{
+			UE_LOG(LogTemp, Warning , TEXT("Scan Apply2"));
 			UGameplayStatics::ApplyDamage(
-				SCharacter,
+				DamagedCharacter,
 				Damage,
 				InstigaterController,
 				this,

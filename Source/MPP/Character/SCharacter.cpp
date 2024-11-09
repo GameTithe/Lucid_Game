@@ -99,7 +99,6 @@ void ASCharacter::BeginPlay()
 void ASCharacter::UpdateHUDHealth()
 {  
 	SController = SController == nullptr ? Cast<ASPlayerController>(Controller) : SController;
-	
 	if (SController)
 	{ 
 		SController->SetHUDHealth(Health, MaxHealth);
@@ -491,7 +490,9 @@ void ASCharacter::ReceivedDamage(AActor* DamagedActor, float Damage, const UDama
 {
 	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
 	if (bElimmed || SGameMode == nullptr) return;
-	
+
+
+	UE_LOG(LogTemp, Warning, TEXT("ReceivedCharacter Damage")); 
 	Damage = SGameMode->CalculateDamage(InstigatedBy, Controller, Damage);
 
 	
