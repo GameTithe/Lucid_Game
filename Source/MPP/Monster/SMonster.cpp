@@ -7,6 +7,8 @@
 #include "Components/WidgetComponent.h"
 #include "MPP/HUD/MonsterHUD.h"
 #include "MPP/MPP.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h" 
  
 ASMonster::ASMonster()
 { 
@@ -20,6 +22,9 @@ ASMonster::ASMonster()
 
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimeline")); 
 }
 
 void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -39,21 +44,24 @@ void ASMonster::BeginPlay()
 	}
 }
  
-void ASMonster::OnRep_CurHealth(float LastHealth)
-{
-	//UpdateHealthHUID
 
-	UE_LOG(LogTemp, Warning, TEXT("ONREP UpdateHUD"));
-	UpdateHUDHealth();
-	if (CurHealth < LastHealth)
-	{
-		//PlayHitReactMontage();
-	}
+void ASMonster::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
-//Server
+void ASMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+/*
+Damaged Received
+*/
 void ASMonster::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{ 
+{
 
 	UE_LOG(LogTemp, Warning, TEXT("ReceivedMonster Damage"));
 
@@ -61,20 +69,40 @@ void ASMonster::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamage
 	UpdateHUDHealth();
 
 	//React Montage 
-	
+
 	//Elim
+	if (CurHealth <= 0)
+		Elim();
 }
+
+/*
+Health
+*/
+
+void ASMonster::OnRep_CurHealth(float LastHealth)
+{ 
+	UpdateHUDHealth();
+
+	if (CurHealth < LastHealth)
+	{
+		//PlayHitReactMontage();
+	}
+}
+
+
+/*
+Udate HUD 
+*/
+
 void ASMonster::UpdateHUDHealth()
 {
 	// Get the actual user widget from HealthWidget and cast it to UMonsterHUD
-	//UMonsterHUD* MHUD = Cast<UMonsterHUD>(HealthHUD);
-	UE_LOG(LogTemp, Warning, TEXT("UpdateHUD1"));
+	//UMonsterHUD* MHUD = Cast<UMonsterHUD>(HealthHUD); 
 
 	HealthHUD = Cast<UMonsterHUD>(MHUD->GetUserWidgetObject());
 
 	if (HealthHUD)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateHUD2"));
 		HealthHUD->UpdateHealth(MaxHealth, CurHealth);
 	}
 	else
@@ -83,16 +111,66 @@ void ASMonster::UpdateHUDHealth()
 	}
 }
 
-
-void ASMonster::Tick(float DeltaTime)
+void ASMonster::MulticastElim_Implementation()
 {
-	Super::Tick(DeltaTime);
+	bElimmed = true;
 
-}   
+	PlayElimMontage();
 
-void ASMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+	//disable Character Monvement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	 
+	 
+	//start dissolve effect
+	if (DissolveMaterialInstance)
+	{ 
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), -0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.0f);
+	}
+
+	//dissolve
+	StartDissolve();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	 
+}
+void ASMonster::StartDissolve()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissloveMaterial); 
+	if (DissolveCurve && DissolveTimeline)
+	{ ;
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
 }
 
+void ASMonster::Elim()
+{
+	MulticastElim();
+}
+
+void ASMonster::PlayElimMontage()
+{		
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	 
+	if (AnimInstance && ElimReactMontage)
+	{ 
+		UE_LOG(LogTemp, Warning, TEXT("ElimReact"));
+		AnimInstance->Montage_Play(ElimReactMontage);
+	}
+	
+}
+
+void ASMonster::UpdateDissloveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+ 

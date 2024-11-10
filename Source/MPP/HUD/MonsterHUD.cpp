@@ -10,8 +10,15 @@ void UMonsterHUD::UpdateHealth(float MaxHealth, float CurHealth)
 		if (MaxHealth == 0) HealthBar->Percent = 0.0f;
 		else
 		{
-			HealthBar->SetPercent(CurHealth / MaxHealth);
-			UE_LOG(LogTemp, Warning, TEXT("%.2f"), (CurHealth / MaxHealth));
+			HealthBar->SetPercent(CurHealth / MaxHealth); 
+		
+			if (CurHealth == 0)
+			{
+				
+				HealthBar->RemoveFromParent();
+			}
 		}
+		
+		
 	}
 }

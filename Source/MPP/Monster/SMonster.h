@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h" 
 #include "SMonster.generated.h"
 
 UCLASS()
@@ -39,8 +40,49 @@ protected:
 
 	void UpdateHUDHealth();
 
+	/*
+	Elim
+	*/
+	UFUNCTION()
+	void UpdateDissloveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* ElimReactMontage;
+	
+	void Elim();
+
+	UFUNCTION(Category = "Elim")
+	void PlayElimMontage();
+
+
+/*
+Dissolve
+*/
+	// Dynamic instance that  we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance  
+	UPROPERTY(EditAnywhere, Category = "Elim")
+	UMaterialInstance* DissolveMaterialInstance;
+
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
+	bool bElimmed = false;
+
 public:	 
 	virtual void Tick(float DeltaTime) override; 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	bool IsElimmed() { return bElimmed; }
 };
