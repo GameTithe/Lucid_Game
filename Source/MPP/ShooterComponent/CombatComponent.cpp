@@ -490,10 +490,11 @@ int32 UCombatComponent::AmountToReload()
 	int32 RoomInMag = EquippedWeapon->GetMagCapacity() - EquippedWeapon->GetAmmo();
 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
-	{
-		//int32 AmountCarriedAmmo = CarriedAmmo;
+	{ 
 		int32 AmountCarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		UE_LOG(LogTemp, Warning , TEXT("AmountCarriedAmmo: %d"), AmountCarriedAmmo);
 		int32 ReloadAmmo = FMath::Min(RoomInMag, AmountCarriedAmmo);
+		UE_LOG(LogTemp, Warning , TEXT("ReloadAmmo: %d") , ReloadAmmo);
 		return FMath::Clamp(ReloadAmmo, 0, AmountCarriedAmmo);
 	}
 
@@ -534,9 +535,10 @@ void UCombatComponent::UpdateCarriedAmmo()
 	int32 ReloadAmount = AmountToReload(); 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
-		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] += ReloadAmount;
-		UE_LOG(LogTemp, Warning, TEXT("%d"), ReloadAmount);
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		UE_LOG(LogTemp, Warning, TEXT("Update ReloadAmmo:%d"), ReloadAmount);
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; 
+		UE_LOG(LogTemp, Warning, TEXT("Update CarriedAmmo:%d"), CarriedAmmo);		
 	}
 
 	//for server
