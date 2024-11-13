@@ -356,7 +356,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Equip Second Weapon"));
 		EquipSecondaryWeapon(WeaponToEquip);
 	}
 	else
@@ -492,9 +491,7 @@ int32 UCombatComponent::AmountToReload()
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{ 
 		int32 AmountCarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
-		UE_LOG(LogTemp, Warning , TEXT("AmountCarriedAmmo: %d"), AmountCarriedAmmo);
 		int32 ReloadAmmo = FMath::Min(RoomInMag, AmountCarriedAmmo);
-		UE_LOG(LogTemp, Warning , TEXT("ReloadAmmo: %d") , ReloadAmmo);
 		return FMath::Clamp(ReloadAmmo, 0, AmountCarriedAmmo);
 	}
 
@@ -536,9 +533,7 @@ void UCombatComponent::UpdateCarriedAmmo()
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
-		UE_LOG(LogTemp, Warning, TEXT("Update ReloadAmmo:%d"), ReloadAmount);
-		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; 
-		UE_LOG(LogTemp, Warning, TEXT("Update CarriedAmmo:%d"), CarriedAmmo);		
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()]; 		
 	}
 
 	//for server
@@ -585,6 +580,17 @@ void UCombatComponent::JumpToShotgunEnd()
 	{
 		//AnimInstance->Montage_Play(Character->GetReloadMontage());
 		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
+	}
+}
+
+void UCombatComponent::SetCarriedAmmo(int amount)
+{
+	EWeaponType type = EquippedWeapon->GetWeaponType();
+
+	if (CarriedAmmoMap.Contains(type))
+	{
+		CarriedAmmoMap[type] = amount;
+		UpdateCarriedAmmo();
 	}
 }
 

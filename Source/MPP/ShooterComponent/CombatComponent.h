@@ -39,6 +39,12 @@ public:
 
 	void JumpToShotgunEnd();
 
+	/*
+	Ammo
+	*/
+	UFUNCTION()
+	void SetCarriedAmmo(int amount);
+
 	void PickupAmmo(EWeaponType type, int32 AmmoAmount);
 
 	/*

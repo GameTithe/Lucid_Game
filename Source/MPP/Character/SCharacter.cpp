@@ -66,7 +66,6 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ASCharacter, Health);
 	DOREPLIFETIME(ASCharacter, bDisableGameplay);
 }
-
 void ASCharacter::SpawnDefaultWeapon()
 {
 	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
@@ -127,7 +126,6 @@ void ASCharacter::PollInit()
 {
 	if (SPlayerState == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SPlayerState == null"));
 		SPlayerState = GetPlayerState<ASPlayerState>();
 		if (SPlayerState)
 		{
@@ -492,7 +490,7 @@ void ASCharacter::ReceivedDamage(AActor* DamagedActor, float Damage, const UDama
 	if (bElimmed || SGameMode == nullptr) return;
 
 
-	UE_LOG(LogTemp, Warning, TEXT("ReceivedCharacter Damage")); 
+
 	Damage = SGameMode->CalculateDamage(InstigatedBy, Controller, Damage);
 
 	

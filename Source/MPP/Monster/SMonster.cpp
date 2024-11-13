@@ -8,8 +8,9 @@
 #include "MPP/HUD/MonsterHUD.h"
 #include "MPP/MPP.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/World.h"
 #include "Components/CapsuleComponent.h" 
- 
+
 ASMonster::ASMonster()
 { 
 	PrimaryActorTick.bCanEverTick = true; 
@@ -36,18 +37,23 @@ void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
  
 void ASMonster::BeginPlay()
 {
-	Super::BeginPlay(); 
+	Super::BeginPlay();  
+	 
 
 	if(HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceivedDamage);
 	}
 }
- 
 
 void ASMonster::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	
+	FVector Forward = GetActorForwardVector();  
+	 
+	AddMovementInput(Forward);
 
 }
 
@@ -57,14 +63,55 @@ void ASMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ASMonster::OffMonster()
+{
+	//PrimaryActorTick.bCanEverTick = false;
+
+	MaxHealth = 100.0f;
+	CurHealth = 100.0f;
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetMesh()->SetActive(false);
+	GetCharacterMovement()->SetActive(false);
+}
+
+void ASMonster::OnMonster(FVector location)
+{ 
+
+	PrimaryActorTick.bCanEverTick = true;
+
+	MaxHealth = 100.0f;
+	CurHealth = 100.0f;
+
+ 
+	SetActorLocation(location);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	GetCharacterMovement()->SetActive(true);
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetCharacterMovement()->GravityScale = 1.0f;
+
+	GetMesh()->SetActive(true);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	
+	if(GetMesh()->GetAnimInstance() ==nullptr)
+		UE_LOG(LogTemp, Warning, TEXT("Anum Error"));
+
+}
+
 /*
 Damaged Received
 */
 void ASMonster::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("ReceivedMonster Damage"));
-
+	
 	CurHealth = FMath::Clamp(CurHealth - Damage, 0.0f, MaxHealth);
 	UpdateHUDHealth();
 
@@ -137,6 +184,21 @@ void ASMonster::MulticastElim_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+	//Gen Drop Item
+	int32 randNum = FMath::RandRange(0, 100);
+
+	int total = 0;
+	for (auto num : Items)
+	{
+		total += num.Value;
+		if (randNum < total)
+		{
+			FActorSpawnParameters params;
+			FVector location = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 100);
+			GetWorld()->SpawnActor<AActor>(num.Key, location, GetActorRotation(), params);
+			break;
+		}
+	}
 	 
 }
 void ASMonster::StartDissolve()
@@ -159,8 +221,7 @@ void ASMonster::PlayElimMontage()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	 
 	if (AnimInstance && ElimReactMontage)
-	{ 
-		UE_LOG(LogTemp, Warning, TEXT("ElimReact"));
+	{   
 		AnimInstance->Montage_Play(ElimReactMontage);
 	}
 	

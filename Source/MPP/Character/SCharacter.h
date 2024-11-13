@@ -47,7 +47,6 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 
 	void SpawnDefaultWeapon();
-	
 	void UpdateHUDHealth();
 	void UpdateHUDAmmo(); 
 
@@ -106,6 +105,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess ="true"))
 	class UCombatComponent* Combat;
+
 	UPROPERTY(VisibleAnywhere)
 	class UBuffComponent* Buff;
 
@@ -152,6 +152,7 @@ private:
 	float MaxHealth = 100.0f; 
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.0f; 
+
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
 	 

@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h" 
 #include "SMonster.generated.h"
-
 UCLASS()
 class MPP_API ASMonster : public ACharacter
 {
@@ -80,9 +79,26 @@ Dissolve
 	void MulticastElim();
 	bool bElimmed = false;
 
+
+	/*
+	DropItem
+	*/ 
+	UPROPERTY(EditAnywhere)
+	TMap<TSubclassOf<AActor>, int32> Items;
+	 
+
+
+
 public:	 
 	virtual void Tick(float DeltaTime) override; 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+	void OffMonster();
+	UFUNCTION()
+	void OnMonster(FVector location);
+
 	bool IsElimmed() { return bElimmed; }
+
+	 
 };
