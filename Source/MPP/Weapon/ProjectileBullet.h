@@ -15,8 +15,7 @@ class MPP_API AProjectileBullet : public AProjectile
 	GENERATED_BODY()
 	AProjectileBullet();
 
-protected:
-
+protected:  
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* BulletMovementComponent;
 

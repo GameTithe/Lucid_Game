@@ -32,25 +32,46 @@ void AObjectPooling::UseObject(int num)
 void AObjectPooling::BeginPlay()
 {
 	Super::BeginPlay();
-	 
-	
+
+	if (!HasAuthority()) return;
+
 	for (auto m : MonsterPooling)
 	{
-		
+
 		location = GetActorLocation();
 
 		for (int i = 0; i < m.Value; i++)
 		{
 			FActorSpawnParameters params;
-			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key , location, GetActorRotation(), params);
-			//Monster->SpawnDefaultController();
-		
-			
+			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
+			Monster->SpawnDefaultController();
 			Monster->OffMonster();
 			MonsterQueue.Enqueue(Monster);
 		}
-	} 
-	
+	}
+
+	UseObject(TestSpawnNum);
+}
+
+void AObjectPooling::ManageMonster()
+{
+	if (!HasAuthority()) return;
+
+	for (auto m : MonsterPooling)
+	{
+
+		location = GetActorLocation();
+
+		for (int i = 0; i < m.Value; i++)
+		{
+			FActorSpawnParameters params;
+			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
+			Monster->SpawnDefaultController(); 
+			Monster->OffMonster();
+			MonsterQueue.Enqueue(Monster);
+		}
+	}
+
 	UseObject(TestSpawnNum);
 }
 

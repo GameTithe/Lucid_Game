@@ -17,7 +17,7 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 { 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	 
-	if (OwnerCharacter)
+	if (OwnerCharacter) 
 	{ 
 		AController* OwnerController = OwnerCharacter->GetController();
 		if (OwnerController && HasAuthority())

@@ -43,6 +43,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void ManageMonster();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override; 

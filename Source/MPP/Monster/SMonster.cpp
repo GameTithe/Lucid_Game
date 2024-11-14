@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h" 
+#include "MPP/Character/SCharacter.h"
 
 ASMonster::ASMonster()
 { 
@@ -18,8 +19,8 @@ ASMonster::ASMonster()
 	MaxHealth = 100.0f;
 	CurHealth = 100.0f;
 	
-	MHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
-	MHUD->SetupAttachment(GetMesh());
+	//MHUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthWidget"));
+	//MHUD->SetupAttachment(GetMesh());
 
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
@@ -110,11 +111,25 @@ Damaged Received
 */
 void ASMonster::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
+	ASCharacter* User = Cast<ASCharacter>(InstigatedBy->GetCharacter());
+	if (User == nullptr)
+	{
+		CurHealth = FMath::Clamp(CurHealth - Damage, 0.0f, MaxHealth);	 
+	}
+	// User가 가한 데미지 면 넉백
+	else
+	{
+		CurHealth = FMath::Clamp(CurHealth - Damage, 0.0f, MaxHealth);	 
+		FVector dir = GetActorLocation() - DamageCauser->GetActorLocation();
+		dir.Normalize();
+		UE_LOG(LogTemp, Warning, TEXT("Impulse: %.2f * %.2f"), dir.Length(), Damage);
 
-	
-	CurHealth = FMath::Clamp(CurHealth - Damage, 0.0f, MaxHealth);
-	UpdateHUDHealth();
+		 LaunchCharacter(dir * Damage * KnockBack, true, false);
 
+		//GetCharacterMovement()->AddImpulse(dir * Damage * KnockBack,true);
+	}
+
+	//UpdateHUDHealth();
 	//React Montage 
 
 	//Elim
@@ -128,7 +143,7 @@ Health
 
 void ASMonster::OnRep_CurHealth(float LastHealth)
 { 
-	UpdateHUDHealth();
+	//UpdateHUDHealth();
 
 	if (CurHealth < LastHealth)
 	{
@@ -146,16 +161,16 @@ void ASMonster::UpdateHUDHealth()
 	// Get the actual user widget from HealthWidget and cast it to UMonsterHUD
 	//UMonsterHUD* MHUD = Cast<UMonsterHUD>(HealthHUD); 
 
-	HealthHUD = Cast<UMonsterHUD>(MHUD->GetUserWidgetObject());
-
-	if (HealthHUD)
-	{
-		HealthHUD->UpdateHealth(MaxHealth, CurHealth);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MHUD not found"));
-	}
+	//HealthHUD = Cast<UMonsterHUD>(MHUD->GetUserWidgetObject());
+	//
+	//if (HealthHUD)
+	//{
+	//	HealthHUD->UpdateHealth(MaxHealth, CurHealth);
+	//}c
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("MHUD not found"));
+	//}
 }
 
 void ASMonster::MulticastElim_Implementation()
@@ -198,14 +213,13 @@ void ASMonster::MulticastElim_Implementation()
 			GetWorld()->SpawnActor<AActor>(num.Key, location, GetActorRotation(), params);
 			break;
 		}
-	}
-	 
+	} 
 }
 void ASMonster::StartDissolve()
 {
 	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissloveMaterial); 
 	if (DissolveCurve && DissolveTimeline)
-	{ ;
+	{
 		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
 		DissolveTimeline->Play();
 	}

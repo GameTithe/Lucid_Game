@@ -24,7 +24,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	if (MuzzleFlashSocket)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
-		FVector Start = SocketTransform.GetLocation();
+		FVector Start = SocketTransform.GetLocation(); 
 
 		FHitResult FireHit;
 		WeaponTraceHit(Start,HitTarget, FireHit);  

@@ -19,13 +19,14 @@ protected:
 	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
   
 	UPROPERTY(EditAnywhere)
-	float Damage = 10.0f;
-
-	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ImpactParicle;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* BeamParticle;
+	
+	UPROPERTY(EditAnywhere)
+	float Damage;
+
 public:
 	virtual void Fire(const FVector& HitTarget) override;
 
