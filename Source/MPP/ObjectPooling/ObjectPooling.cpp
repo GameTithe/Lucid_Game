@@ -5,6 +5,8 @@
 #include "MPP/Monster/SMonster.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "BehaviorTree/BehaviorTree.h"
 
 AObjectPooling::AObjectPooling()
 {
@@ -23,8 +25,8 @@ void AObjectPooling::UseObject(int num)
 		location = location + FVector(offset, 0, 0);
 
 		ASMonster* Monster;
-		MonsterQueue.Dequeue(Monster);
-		Monster->OnMonster(location);
+		if(MonsterQueue.Dequeue(Monster) && Monster!= nullptr)
+			Monster->OnMonster(location);
 	}
 }
 
@@ -44,9 +46,12 @@ void AObjectPooling::BeginPlay()
 		{
 			FActorSpawnParameters params;
 			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
-			Monster->SpawnDefaultController();
-			Monster->OffMonster();
-			MonsterQueue.Enqueue(Monster);
+			if (Monster != nullptr)
+			{ 
+				Monster->SpawnDefaultController();
+				Monster->OffMonster();  
+				MonsterQueue.Enqueue(Monster);
+			}
 		}
 	}
 
@@ -66,7 +71,7 @@ void AObjectPooling::ManageMonster()
 		{
 			FActorSpawnParameters params;
 			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
-			Monster->SpawnDefaultController(); 
+			Monster->SpawnDefaultController();  
 			Monster->OffMonster();
 			MonsterQueue.Enqueue(Monster);
 		}

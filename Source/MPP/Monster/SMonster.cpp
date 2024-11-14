@@ -10,7 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h" 
-#include "MPP/Character/SCharacter.h"
+#include "MPP/Character/SCharacter.h" 
 
 ASMonster::ASMonster()
 { 
@@ -24,9 +24,9 @@ ASMonster::ASMonster()
 
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-
-
+	 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimeline")); 
+
 }
 
 void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -52,9 +52,9 @@ void ASMonster::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	
-	FVector Forward = GetActorForwardVector();  
-	 
-	AddMovementInput(Forward);
+	//FVector Forward = GetActorForwardVector();  
+	// 
+	//AddMovementInput(Forward);
 
 }
 

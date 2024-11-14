@@ -191,6 +191,7 @@ private:
 	UPROPERTY()
 	class ASPlayerController* SController;
 
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);;
 	bool IsWeaponEquipped();

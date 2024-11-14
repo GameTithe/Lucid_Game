@@ -89,8 +89,7 @@ Dissolve
 	UPROPERTY(EditAnywhere)
 	TMap<TSubclassOf<AActor>, int32> Items;
 	 
-
-
+	 
 
 public:	 
 	virtual void Tick(float DeltaTime) override; 
