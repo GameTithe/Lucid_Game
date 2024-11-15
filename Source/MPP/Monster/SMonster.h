@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h" 
+#include "AIController.h"
 #include "SMonster.generated.h"
 UCLASS()
 class MPP_API ASMonster : public ACharacter
@@ -15,7 +16,11 @@ public:
 	ASMonster();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-protected: 
+protected:
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AAIController> MAIControllerClass;
+
 	UPROPERTY(EditAnywhere)
 	float KnockBack = 1;
 

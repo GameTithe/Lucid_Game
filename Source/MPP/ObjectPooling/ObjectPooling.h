@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "MPP/Monster/SMonster.h"
 #include "Containers/Queue.h"
+#include "AIController.h"
 
 #include "ObjectPooling.generated.h"
 
@@ -25,7 +26,7 @@ public:
 	float bound = 500;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ASMonster> Monster2;
+	TSubclassOf<AAIController> MAIControllerClass;
 	 
 	// 0: min
 	TQueue<ASMonster*> MonsterQueue;

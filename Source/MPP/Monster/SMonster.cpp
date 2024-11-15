@@ -40,6 +40,18 @@ void ASMonster::BeginPlay()
 {
 	Super::BeginPlay();  
 	 
+	// AI 컨트롤러가 없다면 생성
+	if (!GetController() && MAIControllerClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Create Class"));
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(MAIControllerClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+		if (AIController)
+		{
+			AIController->Possess(this);
+		}
+	}
 
 	if(HasAuthority())
 	{

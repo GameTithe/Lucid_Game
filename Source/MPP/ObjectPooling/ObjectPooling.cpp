@@ -47,8 +47,9 @@ void AObjectPooling::BeginPlay()
 			FActorSpawnParameters params;
 			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
 			if (Monster != nullptr)
-			{ 
-				Monster->SpawnDefaultController();
+			{  
+				//Monster->SpawnDefaultController();
+				
 				Monster->OffMonster();  
 				MonsterQueue.Enqueue(Monster);
 			}
@@ -69,15 +70,17 @@ void AObjectPooling::ManageMonster()
 
 		for (int i = 0; i < m.Value; i++)
 		{
-			FActorSpawnParameters params;
+			FActorSpawnParameters params; 
+
 			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
+			Monster->AIControllerClass = MAIControllerClass;
 			Monster->SpawnDefaultController();  
-			Monster->OffMonster();
+			//Monster->OffMonster();
 			MonsterQueue.Enqueue(Monster);
 		}
 	}
 
-	UseObject(TestSpawnNum);
+	//UseObject(TestSpawnNum);
 }
 
 // Called every frame
