@@ -74,6 +74,7 @@ void AObjectPooling::ManageMonster()
 
 			ASMonster* Monster = GetWorld()->SpawnActor<ASMonster>(m.Key, location, GetActorRotation(), params);
 			Monster->AIControllerClass = MAIControllerClass;
+			Monster->AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 			Monster->SpawnDefaultController();  
 			//Monster->OffMonster();
 			MonsterQueue.Enqueue(Monster);

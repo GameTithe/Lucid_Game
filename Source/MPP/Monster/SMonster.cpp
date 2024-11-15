@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h" 
+#include "MPP/PlayerController/MonsterAIController.h"
+
 #include "MPP/Character/SCharacter.h" 
 
 ASMonster::ASMonster()
@@ -27,6 +29,11 @@ ASMonster::ASMonster()
 	 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimeline")); 
 
+	// 기본 설정
+	bReplicates = true;
+
+	// AI 자동 빙의 설정
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -39,18 +46,19 @@ void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void ASMonster::BeginPlay()
 {
 	Super::BeginPlay();  
-	 
+
+	AIControllerClass = AMonsterAIController::StaticClass();
+
 	// AI 컨트롤러가 없다면 생성
-	if (!GetController() && MAIControllerClass)
+	if (HasAuthority() && !GetController() && MAIControllerClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Create Class"));
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(MAIControllerClass, GetActorLocation(), GetActorRotation(), SpawnParams);
-		if (AIController)
-		{
-			AIController->Possess(this);
-		}
+
+		SpawnDefaultController();
+
+		//UE_LOG(LogTemp, Warning, TEXT("Create Class"));
+		//FActorSpawnParameters SpawnParams;
+		//SpawnParams.Owner = this;
+		//AAIController* AIController = GetWorld()->SpawnActor<AAIController>(MAIControllerClass, GetActorLocation(), GetActorRotation(), SpawnParams);
 	}
 
 	if(HasAuthority())
