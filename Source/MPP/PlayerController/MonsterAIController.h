@@ -35,6 +35,9 @@ private:
 
     UPROPERTY()
     APawn* ClosestPlayer = nullptr;
+    
+    UFUNCTION()
+    void Attack();
 
     // 타겟 업데이트가 필요한지 확인하는 함수
     bool ShouldUpdateTarget()

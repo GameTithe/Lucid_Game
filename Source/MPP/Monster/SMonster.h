@@ -95,7 +95,34 @@ Dissolve
 	UPROPERTY(EditAnywhere)
 	TMap<TSubclassOf<AActor>, int32> Items;
 	 
-	 
+	/*
+	Attack
+	*/
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* OverlapSphere;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* OverlapCapsule;
+
+	UFUNCTION()
+	virtual void OnAttackSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	virtual void OnCapsuleOverlap(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor, 
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex,
+		bool bFromSweep, 
+		const FHitResult& SweepResult
+	);
+
 
 public:	 
 	virtual void Tick(float DeltaTime) override; 
@@ -108,5 +135,11 @@ public:
 
 	bool IsElimmed() { return bElimmed; }
 
-	 
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+	
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float AttackDamage = 10.0f;
+	
+	void Attack();
 };

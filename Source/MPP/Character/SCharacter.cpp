@@ -487,10 +487,11 @@ void ASCharacter::ServerLeaveGame_Implementation()
 void ASCharacter::ReceivedDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	SGameMode = SGameMode == nullptr ? GetWorld()->GetAuthGameMode<ASGameMode>() : SGameMode;
+
+	UE_LOG(LogTemp, Warning, TEXT("Playaer get damage"));
 	if (bElimmed || SGameMode == nullptr) return;
 
-
-
+	 
 	Damage = SGameMode->CalculateDamage(InstigatedBy, Controller, Damage);
 
 	

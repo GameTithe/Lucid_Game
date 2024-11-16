@@ -11,11 +11,13 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h" 
 #include "MPP/PlayerController/MonsterAIController.h"
-
+#include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "MPP/Character/SCharacter.h" 
 
 ASMonster::ASMonster()
 { 
+	
 	PrimaryActorTick.bCanEverTick = true; 
 
 	MaxHealth = 100.0f;
@@ -34,6 +36,14 @@ ASMonster::ASMonster()
 
 	// AI 자동 빙의 설정
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	
+	//Attack
+	OverlapSphere = CreateDefaultSubobject<USphereComponent>(TEXT("OverlapSphere")); 
+
+	OverlapSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	OverlapSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+  
+	OverlapSphere->SetSphereRadius(100.0f);
 }
 
 void ASMonster::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -48,6 +58,12 @@ void ASMonster::BeginPlay()
 	Super::BeginPlay();  
 
 	AIControllerClass = AMonsterAIController::StaticClass();
+
+	if (HasAuthority())
+	{
+		OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnAttackSphereOverlap);
+		GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnCapsuleOverlap);
+	}
 
 	// AI 컨트롤러가 없다면 생성
 	if (HasAuthority() && !GetController() && MAIControllerClass)
@@ -64,13 +80,13 @@ void ASMonster::BeginPlay()
 	if(HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceivedDamage);
+		
 	}
 }
 
 void ASMonster::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+	Super::Tick(DeltaTime); 
 	
 	//FVector Forward = GetActorForwardVector();  
 	// 
@@ -109,13 +125,15 @@ void ASMonster::OnMonster(FVector location)
  
 	SetActorLocation(location);
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	GetCharacterMovement()->SetActive(true);
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-	GetCharacterMovement()->GravityScale = 1.0f;
+	GetCharacterMovement()->GravityScale = 5.0f;
 
 	GetMesh()->SetActive(true);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
@@ -125,6 +143,7 @@ void ASMonster::OnMonster(FVector location)
 		UE_LOG(LogTemp, Warning, TEXT("Anum Error"));
 
 }
+
 
 /*
 Damaged Received
@@ -269,3 +288,45 @@ void ASMonster::UpdateDissloveMaterial(float DissolveValue)
 	}
 }
  
+void  ASMonster::OnAttackSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+	ASCharacter* Player = Cast<ASCharacter>(OtherActor);
+	UE_LOG(LogTemp, Warning, TEXT("Attack OVerlap"));
+	
+	if (Player)
+	{
+	UE_LOG(LogTemp, Warning, TEXT("Attack Can"));
+		Attack();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Attack Cancel"));
+	}
+}
+void ASMonster::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{ 
+	ASCharacter* Player = Cast<ASCharacter>(OtherActor);
+	AController* InstigaterController = GetController();
+	
+
+	if (Player)
+	{ 
+		UGameplayStatics::ApplyDamage(
+			Player,
+			AttackDamage,
+			InstigaterController,
+			this,
+			UDamageType::StaticClass()
+		); UE_LOG(LogTemp, Warning, TEXT("Goet Damage"));
+	}
+}
+void ASMonster::Attack()
+{ 
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && AttackAnim)
+	{ 
+		AnimInstance->Montage_Play(AttackAnim);
+	}
+}

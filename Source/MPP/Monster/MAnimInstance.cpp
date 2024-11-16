@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "MAnimInstance.h" 
+
 #include "GameFramework/CharacterMovementComponent.h"
-#include "MAnimInstance.h"
 
 void UMAnimInstance::NativeInitializeAnimation()
 {
@@ -28,6 +29,10 @@ void UMAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	if (SMonster == nullptr) return;
 
 	bElimmed = SMonster->IsElimmed(); 
-	bIsFalling = Movement->IsFalling();
+	bIsFalling = Movement->IsFalling(); 
+}
 
+void UMAnimInstance::StopMomnet()
+{
+	//	Movement->Velocity = FVector(0.0f);
 }

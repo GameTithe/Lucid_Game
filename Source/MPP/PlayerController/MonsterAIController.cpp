@@ -59,3 +59,7 @@ void AMonsterAIController::MoveToTarget(AActor* Target)
     SetFocus(Target);
     MoveToActor(Target, 100.0f);
 }
+
+void AMonsterAIController::Attack()
+{
+}
